@@ -40,6 +40,20 @@ class iikoCloud
 
     }
 
+
+    /**
+     * @param $order
+     * @return mixed
+     * @throws Exception
+     */
+    public function sendOrder($order){
+
+
+        $requestJSON = $this->getResponse('api/1/deliveries/create', $order, $this->accessToken);
+        $response_arr = json_decode($requestJSON, true);
+        return $response_arr;
+    }
+
     //Out-of-stock items. - stop_list
 
     /**
@@ -97,6 +111,20 @@ class iikoCloud
         $response_arr = json_decode($orgJSON, true);
 
         return $response_arr["organizations"];
+    }
+
+    //terminal_groups
+    public function getTerminalGroups($organizationIds,$includeDisabled=false)
+    {
+        $params = [
+            'organizationIds' => $organizationIds,
+            'includeDisabled' => $includeDisabled,
+        ];
+        $orgJSON = $this->getResponse('api/1/terminal_groups', $params, $this->accessToken);
+
+        $response_arr = json_decode($orgJSON, true);
+
+        return $response_arr;
     }
 
     /**
@@ -165,5 +193,14 @@ class iikoCloud
 
 
         return $response;
+    }
+
+    //others
+    public function clear_phone($phone) {
+        $bad_simbol = array("8 (", "+7(", "+7 (", "8(", "(", ")", "-", "_", " ", "+7", "*");
+        $result = str_replace($bad_simbol, "", $phone);
+        $result = preg_replace("/[^,.0-9]/", '', $result);
+        $result = substr($result, -10);
+        return $result;
     }
 }
