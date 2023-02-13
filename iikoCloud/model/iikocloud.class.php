@@ -24,34 +24,38 @@ class iikoCloud
     }
 
 
-    /**
-     * @param $organizationId
-     * @return array|mixed
-     * @throws Exception
-     */
-    public function getMenu($organizationId){
-        $params = [
-            "organizationId" => $organizationId,
-            "startRevision" => 0,
-        ];
+    //Get customer info by specified criterion.
+    public function getCustomerinfo($params){
 
-        $requestJSON = $this->getResponse('api/1/nomenclature', $params, $this->accessToken);
-        return json_decode($requestJSON, true);
 
+        $orgJSON = $this->getResponse('api/1/loyalty/iiko/customer/info', $params, $this->accessToken);
+
+        return json_decode($orgJSON, true);
     }
 
 
-    /**
-     * @param $order
-     * @return mixed
-     * @throws Exception
-     */
-    public function sendOrder($order){
+    //Discounts / surcharges.
+    public function getDiscounts($organizationIds = [])
+    {
+        $params = [
+            'organizationIds' => $organizationIds,
+        ];
+        $orgJSON = $this->getResponse('api/1/discounts', $params, $this->accessToken);
 
+        return json_decode($orgJSON, true);
+    }
 
-        $requestJSON = $this->getResponse('api/1/deliveries/create', $order, $this->accessToken);
-        $response_arr = json_decode($requestJSON, true);
-        return $response_arr;
+    //Discounts / surcharges.
+    public function getGetprograms($organizationId)
+    {
+        $params = [
+            'WithoutMarketingCampaigns' => true,
+            'organizationId' => $organizationId,
+        ];
+
+        $data = $this->getResponse('api/1/loyalty/iiko/program', $params, $this->accessToken);
+
+        return json_decode($data, true);
     }
 
     //Out-of-stock items. - stop_list
@@ -113,20 +117,6 @@ class iikoCloud
         return $response_arr["organizations"];
     }
 
-    //terminal_groups
-    public function getTerminalGroups($organizationIds,$includeDisabled=false)
-    {
-        $params = [
-            'organizationIds' => $organizationIds,
-            'includeDisabled' => $includeDisabled,
-        ];
-        $orgJSON = $this->getResponse('api/1/terminal_groups', $params, $this->accessToken);
-
-        $response_arr = json_decode($orgJSON, true);
-
-        return $response_arr;
-    }
-
     /**
      * @return mixed
      * @throws Exception
@@ -146,6 +136,14 @@ class iikoCloud
         return $response_arr["token"];
     }
 
+
+    //others
+    public function clear_phone($phone) {
+        $bad_simbol = array("8 (", "+7(", "+7 (", "8(", "(", ")", "-", "_", " ", "+7", "*");
+        $result = str_replace($bad_simbol, "", $phone);
+        $result = preg_replace("/[^,.0-9]/", '', $result);
+        return substr($result, -10);
+    }
 
     /**
      * @param $action
@@ -193,14 +191,5 @@ class iikoCloud
 
 
         return $response;
-    }
-
-    //others
-    public function clear_phone($phone) {
-        $bad_simbol = array("8 (", "+7(", "+7 (", "8(", "(", ")", "-", "_", " ", "+7", "*");
-        $result = str_replace($bad_simbol, "", $phone);
-        $result = preg_replace("/[^,.0-9]/", '', $result);
-        $result = substr($result, -10);
-        return $result;
     }
 }
