@@ -1,6 +1,6 @@
 <?php
 
-require_once 'iikoCloud.php';
+require_once 'iikocloud.class.php';
 
 use iikoCloud\iikoCloud;
 
